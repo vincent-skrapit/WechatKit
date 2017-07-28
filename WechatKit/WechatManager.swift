@@ -48,8 +48,17 @@ public class WechatManager: NSObject {
             self.defaults.synchronize()
         }
     }
+  
+    ///code 
+  public var code: String! {
+    didSet {
+      self.defaults.set(self.refreshToken, forKey: "wechatkit_code")
+      self.defaults.synchronize()
+    }
+  }
     /// csrf
     public static var csrfState = "73746172626f796368696e61"
+  
     /// 分享Delegation
     public var shareDelegate: WechatManagerShareDelegate?
     /// A shared instance

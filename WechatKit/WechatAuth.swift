@@ -102,7 +102,7 @@ extension WechatManager {
     }
 
     func getAccessToken(_ code: String) {
-
+        self.code = code
         AlamofireController.request(WechatRoute.accessToken(code)) { result in
 
             if let err = result["errcode"] as? Int32 {
