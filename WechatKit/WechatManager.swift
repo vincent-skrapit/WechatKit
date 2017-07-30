@@ -18,6 +18,10 @@ public class WechatManager: NSObject {
 
     /// A closure used to receive and process request from Wechat
     var completionHandler: Handle!
+  
+    public typealias codeHandle = (String) -> Void
+  
+    var codeCompletion: codeHandle!
 
     /// 微信开放平台,注册的应用程序id
     public static var appid: String! {
@@ -119,7 +123,7 @@ extension WechatManager: WXApiDelegate {
     public func onResp(_ resp: BaseResp) {
         if let temp = resp as? SendAuthResp {
             if 0 == temp.errCode && WechatManager.csrfState == temp.state {
-                self.getAccessToken(temp.code)
+                codeCompletion(code)
             } else {
                 completionHandler(.failure(WXErrCodeCommon.rawValue))
             }

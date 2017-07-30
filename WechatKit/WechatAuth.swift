@@ -20,7 +20,8 @@ extension WechatManager {
             nil != self.refreshToken {
             self.checkToken()
         } else {
-            self.sendAuth()
+            self.sendAuth(handle: { (code) in
+            })
         }
     }
     /**
@@ -54,8 +55,9 @@ extension WechatManager {
 // MARK: - private
 extension WechatManager {
 
-    fileprivate func sendAuth() {
-
+    func sendAuth(handle: @escaping codeHandle) {
+      
+        self.codeCompletion = handle
         let req = SendAuthReq()
         req.scope = "snsapi_userinfo"
         req.state = WechatManager.csrfState
@@ -122,7 +124,8 @@ extension WechatManager {
             if !result.keys.contains("errcode") {
                 self.saveOpenId(result)
             } else {
-                self.sendAuth()
+              self.sendAuth(handle: { (code) in
+              })
             }
         }
     }
