@@ -10,7 +10,7 @@
 extension WechatManager {
   
   
-  func sendAuth(handle: @escaping codeHandle) {
+    public func sendAuth(handle: @escaping codeHandle) {
     
     self.codeCompletion = handle
     let req = SendAuthReq()
