@@ -8,6 +8,25 @@
 
 // MARK: - public
 extension WechatManager {
+  
+  
+  func sendAuth(handle: @escaping codeHandle) {
+    
+    self.codeCompletion = handle
+    let req = SendAuthReq()
+    req.scope = "snsapi_userinfo"
+    req.state = WechatManager.csrfState
+    
+    if !WXApi.isWXAppInstalled() {
+      // 微信没有安装 通过短信方式认证(需要弹出一个 webview)
+      DispatchQueue.main.async {
+        WXApi.sendAuthReq(req, viewController: self.topViewController(), delegate: WechatManager.shared)
+      }
+    } else {
+      WXApi.send(req)
+    }
+  }
+
     /**
      微信认证
 
@@ -50,46 +69,29 @@ extension WechatManager {
         self.accessToken = ""
         self.refreshToken = ""
     }
+  
+    func topViewController(base: UIViewController? = nil) -> UIViewController? {
+    if base == nil {
+      return topViewController(base: UIApplication.shared.keyWindow?.rootViewController)
+    }
+    if let nav = base as? UINavigationController {
+      return topViewController(base: nav.visibleViewController)
+    }
+    if let tab = base as? UITabBarController {
+      if let selected = tab.selectedViewController {
+        return topViewController(base: selected)
+      }
+    }
+    if let presented = base?.presentedViewController {
+      return topViewController(base: presented)
+    }
+    return base
+  }
+
 }
 
 // MARK: - private
 extension WechatManager {
-
-    func sendAuth(handle: @escaping codeHandle) {
-      
-        self.codeCompletion = handle
-        let req = SendAuthReq()
-        req.scope = "snsapi_userinfo"
-        req.state = WechatManager.csrfState
-
-        if !WXApi.isWXAppInstalled() {
-            // 微信没有安装 通过短信方式认证(需要弹出一个 webview)
-            DispatchQueue.main.async {
-                WXApi.sendAuthReq(req, viewController: self.topViewController(), delegate: WechatManager.shared)
-            }
-        } else {
-            WXApi.send(req)
-        }
-    }
-
-    private func topViewController(base: UIViewController? = nil) -> UIViewController? {
-        if base == nil {
-            return topViewController(base: UIApplication.shared.keyWindow?.rootViewController)
-        }
-        if let nav = base as? UINavigationController {
-            return topViewController(base: nav.visibleViewController)
-        }
-        if let tab = base as? UITabBarController {
-            if let selected = tab.selectedViewController {
-                return topViewController(base: selected)
-            }
-        }
-        if let presented = base?.presentedViewController {
-            return topViewController(base: presented)
-        }
-        return base
-    }
-
     fileprivate func checkToken() {
 
         AlamofireController.request(WechatRoute.checkToken) { result in
